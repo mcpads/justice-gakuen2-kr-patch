@@ -2,7 +2,9 @@
 
 PlayStation 일본어판 **사립 저스티스 학원 열혈청춘일기 2**의 비공식 한국어 패치입니다.
 
-현재 버전은 **v0.1.0-preview.1 — 사전공개 1**입니다. 플레이하며 번역과 화면 문제를 제보받기 위한 공개판으로, 모든 분기와 기능의 검증이 끝난 버전은 아닙니다.
+다음 배포는 **v0.1.0-preview.2 — 사전공개 2**로 준비 중입니다. 배포 파일명은 `justice-gakuen2-kr-v0.1.0-preview.2.xdelta`입니다. 아직 공개 전이며, 아래 다운로드·적용 안내와 해시는 현재 공개된 사전공개 1 기준입니다.
+
+현재 공개 버전은 **v0.1.0-preview.1 — 사전공개 1**입니다. 플레이하며 번역과 화면 문제를 제보받기 위한 공개판으로, 모든 분기와 기능의 검증이 끝난 버전은 아닙니다.
 
 **[패치 다운로드](https://github.com/mcpads/justice-gakuen2-kr-patch/releases/tag/v0.1.0-preview.1)** · **[문제 제보](https://github.com/mcpads/justice-gakuen2-kr-patch/issues)**
 
