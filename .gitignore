@@ -1,0 +1,15 @@
+/target
+/roms
+/out
+/build
+/work
+/assets
+/specs
+*.bin
+*.cue
+*.iso
+*.xdelta
+.DS_Store
+.claude/
+.emucap/
+.worktrees/

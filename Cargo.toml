@@ -1,0 +1,28 @@
+[package]
+name = "justice-gakuen2-kr"
+version = "0.1.0"
+edition = "2024"
+description = "Rust production pipeline for the Justice Gakuen 2 Korean patch"
+default-run = "justice-gakuen2-kr"
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+encoding_rs = "=0.8.35"
+expected-write = { git = "https://github.com/mcpads/retro-typed-isa", rev = "9b31c628465cb83a633445de7d39e985be184cb7" }
+fontdue = "0.9"
+png = "0.18.1"
+psx-r3000a = { git = "https://github.com/mcpads/retro-typed-isa", rev = "9b31c628465cb83a633445de7d39e985be184cb7" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+typed-isa-core = { git = "https://github.com/mcpads/retro-typed-isa", rev = "9b31c628465cb83a633445de7d39e985be184cb7" }
+
+[profile.dev.package.sha2]
+opt-level = 3
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+uninlined_format_args = "warn"

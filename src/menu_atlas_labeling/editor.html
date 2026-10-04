@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Justice Gakuen 2 공용 MENU 아틀라스 라벨링</title>
+<style>
+:root { color-scheme:dark; --bg:#0d1118; --panel:#151c27; --line:#344155; --text:#edf3fb; --muted:#9cabc0; --accent:#66d7ff; --warn:#ffb45e; --danger:#ff7184; }
+* { box-sizing:border-box; }
+body { margin:0; color:var(--text); background:var(--bg); font:14px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+header { position:sticky; top:0; z-index:20; padding:14px 18px; border-bottom:1px solid var(--line); background:rgba(13,17,24,.96); backdrop-filter:blur(8px); }
+h1 { margin:0 0 6px; font-size:21px; }
+.identity { color:var(--muted); overflow-wrap:anywhere; }
+.toolbar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px; }
+.code-nav-summary { color:var(--muted); font-variant-numeric:tabular-nums; }
+button,input,select,textarea { color:var(--text); background:#0a0f16; border:1px solid var(--line); border-radius:6px; padding:7px 9px; font:inherit; }
+button { cursor:pointer; }
+button:hover { border-color:var(--accent); }
+button.danger { border-color:#6e3440; color:#ffb5be; }
+input[type=file] { max-width:240px; }
+main { display:grid; grid-template-columns:minmax(0,1fr) 370px; gap:14px; padding:14px; }
+.canvas-panel,.form-panel { min-width:0; padding:12px; border:1px solid var(--line); border-radius:8px; background:var(--panel); }
+.atlas-scroll { overflow:auto; max-height:72vh; border:1px solid var(--line); background:#080b10; }
+#stage { position:relative; width:1024px; height:256px; transform-origin:top left; }
+#stage img,#overlay { position:absolute; inset:0; width:100%; height:100%; display:block; image-rendering:pixelated; }
+#overlay { touch-action:none; cursor:crosshair; }
+.page-line { stroke:#7be0ff; stroke-width:1; stroke-dasharray:4 4; vector-effect:non-scaling-stroke; opacity:.8; }
+.risk-write { fill:rgba(255,64,64,.12); stroke:#ff4040; stroke-width:1.5; vector-effect:non-scaling-stroke; pointer-events:none; }
+.risk-write[data-component="title_menu"] { fill:rgba(255,176,32,.13); stroke:#ffb020; }
+.risk-write[data-component="title_notice"] { fill:rgba(224,64,255,.13); stroke:#e040ff; }
+.risk-write.related { fill:rgba(255,255,255,.24); stroke:#fff; stroke-width:2.5; }
+.label-box { fill:rgba(255,180,94,.12); stroke:#ffb45e; stroke-width:1.5; vector-effect:non-scaling-stroke; cursor:pointer; }
+.label-box[data-kind="font_glyph"] { stroke:#69d6ff; fill:rgba(105,214,255,.12); }
+.label-box[data-kind="multi_cell_glyph"] { stroke:#9a8cff; fill:rgba(154,140,255,.12); }
+.label-box[data-kind="controller_icon"] { stroke:#78dd9d; fill:rgba(120,221,157,.12); }
+.label-box[data-kind="interface_graphic"] { stroke:#ffb45e; fill:rgba(255,180,94,.12); }
+.label-box[data-kind="baked_text"] { stroke:#ff7bbd; fill:rgba(255,123,189,.12); }
+.label-box[data-kind="unknown"] { stroke:#c0c8d4; fill:rgba(192,200,212,.1); stroke-dasharray:3 2; }
+.label-box.selected { stroke:#fff; stroke-width:2.5; }
+.code-fragment { fill:rgba(102,215,255,.22); stroke:#66d7ff; stroke-width:1.5; vector-effect:non-scaling-stroke; pointer-events:none; }
+.draft { fill:rgba(255,255,255,.12); stroke:#fff; stroke-width:1; stroke-dasharray:3 2; vector-effect:non-scaling-stroke; pointer-events:none; }
+.hint { margin:0 0 10px; color:var(--muted); }
+.status { min-height:22px; margin-top:8px; color:var(--accent); }
+.status.error { color:var(--danger); }
+.code-info { min-height:64px; margin:10px 0; padding:9px; color:var(--muted); background:#0c121a; border:1px solid #293547; border-radius:6px; overflow-wrap:anywhere; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+label { display:grid; gap:4px; color:var(--muted); }
+label.wide { grid-column:1/-1; }
+textarea { min-height:64px; resize:vertical; }
+.form-actions { display:flex; gap:8px; margin:10px 0; }
+.label-list { display:grid; gap:6px; max-height:280px; overflow:auto; }
+.label-row { display:grid; grid-template-columns:1fr auto; gap:8px; padding:7px; text-align:left; background:#101722; border:1px solid #293547; border-radius:5px; }
+.label-row strong { overflow-wrap:anywhere; }
+.label-row span { color:var(--muted); }
+.empty { color:var(--muted); padding:12px 0; }
+code { color:#c9edff; }
+@media (max-width:1050px) { main { grid-template-columns:1fr; } .form-panel { order:-1; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>공용 MENU 아틀라스 라벨링</h1>
+  <div class="identity">원본 BIN <code id="sourceHash"></code> · MENU decoded <code id="menuHash"></code></div>
+  <div class="toolbar">
+    <label>확대
+      <select id="zoom"><option value="1">1×</option><option value="2" selected>2×</option><option value="3">3×</option><option value="4">4×</option></select>
+    </label>
+    <label>논리 코드 확인 <input id="codeLookup" value="0x0000" inputmode="text" size="9"></label>
+    <label>코드 묶음
+      <select id="codeSubset"><option value="migration_affected" selected>마이그레이션 영향 코드</option><option value="exact_dialogue">정확 대화 픽셀</option><option value="used_exact_dialogue">정적 사용 + 정확 일치</option><option value="statically_used">정적 사용</option><option value="all">전체</option></select>
+    </label>
+    <button id="previousCode" type="button">이전 코드</button>
+    <button id="nextCode" type="button">다음 코드</button>
+    <span id="codeNavSummary" class="code-nav-summary"></span>
+    <button id="clearCode" type="button">코드 표시 지우기</button>
+    <label>라벨 JSON <input id="loadFile" type="file" accept="application/json,.json"></label>
+    <label>위험 JSON <input id="loadMigrationRisk" type="file" accept="application/json,.json"></label>
+    <button id="clearMigrationRisk" type="button">위험 표시 지우기</button>
+    <button id="restoreDraft" type="button" hidden>브라우저 임시본 복원</button>
+    <button id="export" type="button">labels.json 내보내기</button>
+  </div>
+  <div id="status" class="status"></div>
+</header>
+<main>
+  <section class="canvas-panel">
+    <p class="hint">빈 곳을 드래그해 자유 크기 박스를 만듭니다. 코드 묶음은 <span id="exactCodeCount"></span>개 정확 대화-픽셀 후보, <span id="usedCodeCount"></span>개 정적 사용 코드, 그리고 불러온 마이그레이션 영향 코드를 빠르게 순회하기 위한 증거 필터이며 라벨을 자동 확정하지 않습니다. 빨강·주황·자홍 박스는 각각 Options·title menu·title notice 후보 쓰기이고, 청록색은 선택한 논리 코드의 실제 20×20 UV 래핑 조각입니다. 어느 쪽도 실제 의미 요소의 크기를 대신하지 않습니다.</p>
+    <div id="migrationSummary" class="code-info">마이그레이션 위험 JSON이 없습니다. 생성 시 <code>--migration-risk</code>로 포함하거나 위에서 파일을 불러오세요.</div>
+    <div class="atlas-scroll">
+      <div id="stage">
+        <img src="menu-atlas.png" width="1024" height="256" alt="원본 MENU.BIZ 공용 아틀라스">
+        <svg id="overlay" viewBox="0 0 1024 256" aria-label="라벨 편집 오버레이">
+          <g id="riskLayer"></g><g id="pageLines"></g><g id="codeLayer"></g><g id="labelLayer"></g><g id="draftLayer"></g>
+        </svg>
+      </div>
+    </div>
+    <div id="codeInfo" class="code-info">논리 코드를 입력하거나 아틀라스를 클릭하세요.</div>
+  </section>
+  <aside class="form-panel">
+    <p class="hint">확정 라벨은 `unknown`일 수 없고 의미 역할이 필요합니다. 겹침은 금지하지 않으며 보고서에서 검토 대상으로 기록합니다.</p>
+    <div class="form-grid">
+      <label class="wide">안정 ID <input id="labelId" placeholder="options-controller-cross"></label>
+      <label>분류
+        <select id="kind"><option value="font_glyph">font_glyph</option><option value="multi_cell_glyph">multi_cell_glyph</option><option value="controller_icon">controller_icon</option><option value="interface_graphic">interface_graphic</option><option value="baked_text">baked_text</option><option value="unknown">unknown</option></select>
+      </label>
+      <label>검토 상태
+        <select id="reviewStatus"><option value="unreviewed">unreviewed</option><option value="needs_review">needs_review</option><option value="confirmed">confirmed</option></select>
+      </label>
+      <label>X <input id="x" type="number" min="0" max="1023"></label>
+      <label>Y <input id="y" type="number" min="0" max="255"></label>
+      <label>너비 <input id="width" type="number" min="1" max="1024"></label>
+      <label>높이 <input id="height" type="number" min="1" max="256"></label>
+      <label class="wide">의미 역할 <input id="semanticRole" placeholder="예: options.controller.cross"></label>
+      <label class="wide">원문 <input id="sourceText" placeholder="글자가 포함된 경우"></label>
+      <label class="wide">연결 논리 코드 <input id="logicalCodes" placeholder="0x02a0, 0x02a1"></label>
+      <label class="wide">메모 <textarea id="notes"></textarea></label>
+    </div>
+    <div class="form-actions">
+      <button id="saveLabel" type="button">선택 라벨 저장</button>
+      <button id="deleteLabel" class="danger" type="button">삭제</button>
+    </div>
+    <div id="labelSummary" class="hint"></div>
+    <div id="labelList" class="label-list"></div>
+  </aside>
+</main>
+<script>
+const initialDocument=__LABEL_DOCUMENT_JSON__;
+const logicalCodeMap=__LOGICAL_CODE_MAP_JSON__;
+const initialMigrationReview=__MIGRATION_REVIEW_JSON__;
+const byCode=new Map(logicalCodeMap.references.map(entry=>[entry.code,entry]));
+let migrationReview=null;
+let migrationAffectedCodes=new Set();
+let migrationObligationsByCode=new Map();
+const codeSubsets={
+  migration_affected:entry=>migrationAffectedCodes.has(entry.code),
+  exact_dialogue:entry=>Boolean(entry.exact_dialogue_pixel_text),
+  used_exact_dialogue:entry=>entry.occurrence_count>0&&Boolean(entry.exact_dialogue_pixel_text),
+  statically_used:entry=>entry.occurrence_count>0,
+  all:()=>true
+};
+const storageKey=`justice-gakuen2-menu-atlas-labels:${initialDocument.source_atlas_indexed_sha256}`;
+let documentState=structuredClone(initialDocument);
+let selectedId=null;
+let dragStart=null;
+let draftRect=null;
+
+const $=id=>document.getElementById(id);
+const stage=$('stage');
+const overlay=$('overlay');
+const labelLayer=$('labelLayer');
+const riskLayer=$('riskLayer');
+const codeLayer=$('codeLayer');
+const draftLayer=$('draftLayer');
+const status=$('status');
+
+$('sourceHash').textContent=initialDocument.source_bin_sha256;
+$('menuHash').textContent=initialDocument.menu_decoded_sha256;
+for(const x of [256,512,768]){
+  const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1',x); line.setAttribute('x2',x); line.setAttribute('y1',0); line.setAttribute('y2',256); line.setAttribute('class','page-line');
+  $('pageLines').append(line);
+}
+
+function setStatus(message,error=false){ status.textContent=message; status.classList.toggle('error',error); }
+function nullable(value){ const trimmed=value.trim(); return trimmed||undefined; }
+function nextId(){
+  const used=new Set(documentState.labels.map(label=>label.id));
+  let index=1;
+  while(used.has(`region-${String(index).padStart(3,'0')}`)) index++;
+  return `region-${String(index).padStart(3,'0')}`;
+}
+function normalizeCodes(raw){
+  const codes=raw.split(/[\s,]+/).map(code=>code.trim().toLowerCase()).filter(Boolean);
+  const seen=new Set();
+  for(const code of codes){
+    if(!/^0x0[0-3][0-9a-f]{2}$/.test(code)) throw new Error(`논리 코드 형식 오류: ${code}`);
+    if(seen.has(code)) throw new Error(`논리 코드 중복: ${code}`);
+    seen.add(code);
+  }
+  return codes;
+}
+function validateLabel(label){
+  if(!/^[a-z0-9][a-z0-9._-]{0,79}$/.test(label.id)) throw new Error('ID는 소문자 영문·숫자로 시작하고 ._-만 사용할 수 있습니다.');
+  if(documentState.labels.some(other=>other.id===label.id&&other.id!==selectedId)) throw new Error(`중복 ID: ${label.id}`);
+  const b=label.bounds;
+  if(!Number.isInteger(b.x)||!Number.isInteger(b.y)||!Number.isInteger(b.width)||!Number.isInteger(b.height)||b.width<1||b.height<1||b.x<0||b.y<0||b.x+b.width>1024||b.y+b.height>256) throw new Error('박스가 1024×256 원본 범위를 벗어났습니다.');
+  if(label.review_status==='confirmed'&&(label.kind==='unknown'||!label.semantic_role)) throw new Error('확정 라벨에는 구체 분류와 의미 역할이 필요합니다.');
+}
+function formLabel(){
+  const label={
+    id:$('labelId').value.trim(), kind:$('kind').value, review_status:$('reviewStatus').value,
+    bounds:{x:Number($('x').value),y:Number($('y').value),width:Number($('width').value),height:Number($('height').value)},
+    logical_codes:normalizeCodes($('logicalCodes').value)
+  };
+  for(const [key,value] of [['semantic_role',nullable($('semanticRole').value)],['source_text',nullable($('sourceText').value)],['notes',nullable($('notes').value)]]) if(value) label[key]=value;
+  if(!label.logical_codes.length) delete label.logical_codes;
+  validateLabel(label);
+  return label;
+}
+function fillForm(label){
+  const empty=!label;
+  $('labelId').value=label?.id||''; $('kind').value=label?.kind||'unknown'; $('reviewStatus').value=label?.review_status||'unreviewed';
+  $('x').value=label?.bounds.x??''; $('y').value=label?.bounds.y??''; $('width').value=label?.bounds.width??''; $('height').value=label?.bounds.height??'';
+  $('semanticRole').value=label?.semantic_role||''; $('sourceText').value=label?.source_text||''; $('logicalCodes').value=(label?.logical_codes||[]).join(', '); $('notes').value=label?.notes||'';
+  $('saveLabel').disabled=empty; $('deleteLabel').disabled=empty;
+}
+function selectLabel(id){ selectedId=id; fillForm(documentState.labels.find(label=>label.id===id)); render(); }
+function autosave(){ localStorage.setItem(storageKey,JSON.stringify(documentState)); checkDraft(); }
+function checkDraft(){ $('restoreDraft').hidden=!localStorage.getItem(storageKey); }
+function svgRect(cell,className){
+  const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  for(const [key,value] of Object.entries(cell)) rect.setAttribute(key,value);
+  rect.setAttribute('class',className); return rect;
+}
+function validateAtlasCell(cell,owner){
+  if(!cell||![cell.x,cell.y,cell.width,cell.height].every(Number.isInteger)||cell.width<1||cell.height<1||cell.x<0||cell.y<0||cell.x+cell.width>initialDocument.atlas_width||cell.y+cell.height>initialDocument.atlas_height) throw new Error(`위험 사각형 범위 오류: ${owner}`);
+}
+function validateMigrationReview(review){
+  if(!review||review.kind!=='Justice Gakuen 2 source-bound shared MENU atlas migration obligation audit') throw new Error('지원하지 않는 마이그레이션 위험 JSON입니다.');
+  for(const key of ['source_bin_sha256','menu_stored_sha256','menu_decoded_sha256','source_atlas_indexed_sha256']) if(review[key]!==initialDocument[key]) throw new Error(`위험 JSON 원본 바인딩 불일치: ${key}`);
+  if(review.address_flow_state_budget!==logicalCodeMap.address_flow_state_budget||review.statically_used_source_code_count!==logicalCodeMap.used_code_count) throw new Error('위험 JSON과 논리 코드 맵의 정적 흐름 증거가 다릅니다.');
+  if(!Array.isArray(review.candidate_writes)||!Array.isArray(review.source_code_migration_obligations)||review.candidate_write_count!==review.candidate_writes.length||review.source_code_migration_obligation_count!==review.source_code_migration_obligations.length) throw new Error('위험 JSON 개수 필드와 실제 항목 수가 다릅니다.');
+  const writeIds=new Set();
+  for(const write of review.candidate_writes){
+    if(typeof write.id!=='string'||!write.id||writeIds.has(write.id)) throw new Error(`후보 쓰기 ID 오류: ${write.id}`);
+    writeIds.add(write.id);
+    if(!['options','title_menu','title_notice'].includes(write.component)) throw new Error(`알 수 없는 후보 쓰기 구성요소: ${write.component}`);
+    if(!byCode.has(write.code)) throw new Error(`후보 쓰기의 논리 코드가 맵에 없습니다: ${write.code}`);
+    validateAtlasCell(write.cell,write.id);
+  }
+  const affectedCodes=new Set();
+  const obligationsByCode=new Map();
+  for(const obligation of review.source_code_migration_obligations){
+    const reference=byCode.get(obligation.code);
+    if(!reference||affectedCodes.has(obligation.code)) throw new Error(`영향 코드 오류: ${obligation.code}`);
+    affectedCodes.add(obligation.code); obligationsByCode.set(obligation.code,obligation);
+    if(!Array.isArray(obligation.footprint_fragments)||JSON.stringify(obligation.footprint_fragments)!==JSON.stringify(reference.footprint_fragments)||obligation.occurrence_count!==reference.occurrence_count||JSON.stringify(obligation.overlays)!==JSON.stringify(reference.overlays)||obligation.exact_dialogue_pixel_text!==reference.exact_dialogue_pixel_text) throw new Error(`영향 코드가 논리 코드 맵과 다릅니다: ${obligation.code}`);
+    for(const [index,fragment] of obligation.footprint_fragments.entries()) validateAtlasCell(fragment,`${obligation.code} fragment ${index}`);
+    if(!Array.isArray(obligation.candidate_write_ids)||!obligation.candidate_write_ids.length||!obligation.candidate_write_ids.every(id=>writeIds.has(id))) throw new Error(`영향 코드가 알 수 없는 후보 쓰기를 참조합니다: ${obligation.code}`);
+  }
+  return {affectedCodes,obligationsByCode};
+}
+function renderMigrationRisk(code=$('codeLookup').value.trim().toLowerCase()){
+  riskLayer.replaceChildren();
+  if(!migrationReview) return;
+  const related=new Set(migrationObligationsByCode.get(code)?.candidate_write_ids||[]);
+  for(const write of migrationReview.candidate_writes){
+    const rect=svgRect(write.cell,`risk-write${related.has(write.id)?' related':''}`);
+    rect.dataset.component=write.component;
+    const title=document.createElementNS('http://www.w3.org/2000/svg','title');
+    title.textContent=`${write.id} · ${write.character} · ${write.code} · source occurrence ${write.source_code_occurrence_count}`;
+    rect.append(title); riskLayer.append(rect);
+  }
+}
+function refreshSubsetCounts(){
+  for(const option of $('codeSubset').options){
+    option.dataset.label||=option.textContent;
+    const count=logicalCodeMap.references.filter(codeSubsets[option.value]).length;
+    option.textContent=`${option.dataset.label} (${count})`;
+  }
+}
+function applyMigrationReview(review,label){
+  const validated=validateMigrationReview(review);
+  migrationReview=review;
+  migrationAffectedCodes=validated.affectedCodes;
+  migrationObligationsByCode=validated.obligationsByCode;
+  $('codeSubset').querySelector('[value="migration_affected"]').disabled=false;
+  $('clearMigrationRisk').disabled=false;
+  $('migrationSummary').textContent=`${label} · flow budget ${review.address_flow_state_budget.toLocaleString()} · 후보 쓰기 ${review.candidate_writes.length}개 · 영향 코드 ${review.source_code_migration_obligations.length}개. 이 목록은 확인된 하한이며 라벨 확정이나 안전한 빈 공간 증명이 아닙니다.`;
+  refreshSubsetCounts(); renderMigrationRisk();
+}
+function clearMigrationReview(){
+  migrationReview=null; migrationAffectedCodes=new Set(); migrationObligationsByCode=new Map(); riskLayer.replaceChildren();
+  const option=$('codeSubset').querySelector('[value="migration_affected"]'); option.disabled=true;
+  $('clearMigrationRisk').disabled=true;
+  $('migrationSummary').innerHTML='마이그레이션 위험 JSON이 없습니다. 생성 시 <code>--migration-risk</code>로 포함하거나 위에서 파일을 불러오세요.';
+  if($('codeSubset').value==='migration_affected') $('codeSubset').value='statically_used';
+  refreshSubsetCounts(); stepCode(0);
+}
+function render(){
+  labelLayer.replaceChildren();
+  for(const label of documentState.labels){
+    const rect=svgRect(label.bounds,`label-box${label.id===selectedId?' selected':''}`);
+    rect.dataset.id=label.id; rect.dataset.kind=label.kind;
+    const title=document.createElementNS('http://www.w3.org/2000/svg','title'); title.textContent=`${label.id} · ${label.kind} · ${label.bounds.width}×${label.bounds.height}`; rect.append(title);
+    rect.addEventListener('pointerdown',event=>{ event.stopPropagation(); selectLabel(label.id); });
+    labelLayer.append(rect);
+  }
+  const counts=new Map(); for(const label of documentState.labels) counts.set(label.review_status,(counts.get(label.review_status)||0)+1);
+  $('labelSummary').textContent=`${documentState.labels.length}개 · confirmed ${counts.get('confirmed')||0} · needs_review ${counts.get('needs_review')||0} · unreviewed ${counts.get('unreviewed')||0}`;
+  const list=$('labelList'); list.replaceChildren();
+  if(!documentState.labels.length){ const empty=document.createElement('div'); empty.className='empty'; empty.textContent='아직 라벨이 없습니다.'; list.append(empty); }
+  for(const label of documentState.labels){
+    const button=document.createElement('button'); button.type='button'; button.className='label-row';
+    const name=document.createElement('strong'); name.textContent=label.id;
+    const meta=document.createElement('span'); meta.textContent=`${label.kind} · ${label.bounds.x},${label.bounds.y} ${label.bounds.width}×${label.bounds.height}`;
+    button.append(name,meta); button.addEventListener('click',()=>selectLabel(label.id)); list.append(button);
+  }
+}
+function atlasPoint(event){
+  const point=overlay.createSVGPoint(); point.x=event.clientX; point.y=event.clientY;
+  const mapped=point.matrixTransform(overlay.getScreenCTM().inverse());
+  return {x:Math.max(0,Math.min(1024,Math.round(mapped.x))),y:Math.max(0,Math.min(256,Math.round(mapped.y)))};
+}
+function drawDraft(bounds){ draftLayer.replaceChildren(); if(bounds) draftLayer.append(svgRect(bounds,'draft')); }
+overlay.addEventListener('pointerdown',event=>{ dragStart=atlasPoint(event); draftRect=null; overlay.setPointerCapture(event.pointerId); });
+overlay.addEventListener('pointermove',event=>{
+  if(!dragStart) return;
+  const point=atlasPoint(event); const x=Math.min(dragStart.x,point.x); const y=Math.min(dragStart.y,point.y);
+  draftRect={x,y,width:Math.abs(point.x-dragStart.x),height:Math.abs(point.y-dragStart.y)}; drawDraft(draftRect);
+});
+overlay.addEventListener('pointerup',event=>{
+  const point=atlasPoint(event); const start=dragStart; dragStart=null; drawDraft(null);
+  if(!start) return;
+  if(!draftRect||draftRect.width<1||draftRect.height<1){ showCodesAt(point); return; }
+  const label={id:nextId(),kind:'unknown',review_status:'unreviewed',bounds:draftRect};
+  documentState.labels.push(label); selectedId=label.id; fillForm(label); autosave(); render(); setStatus(`${label.id} 초안을 만들었습니다. 분류와 의미를 입력하세요.`);
+});
+
+function showCode(code){
+  codeLayer.replaceChildren(); const normalized=code.trim().toLowerCase(); const entry=byCode.get(normalized);
+  renderMigrationRisk(normalized);
+  if(!entry){ $('codeInfo').textContent='0x0000..0x03ff 형식의 논리 코드를 입력하세요.'; updateCodeNavigation(normalized); return; }
+  for(const fragment of entry.footprint_fragments) codeLayer.append(svgRect(fragment,'code-fragment'));
+  const exact=entry.exact_dialogue_pixel_text?` · 정확 일치 ${JSON.stringify(entry.exact_dialogue_pixel_text)}`:' · 정확 텍스트 미해결';
+  const overlays=entry.overlays.length?` · ${entry.overlays.join(', ')}`:'';
+  const obligation=migrationObligationsByCode.get(entry.code);
+  const migration=obligation?` · 마이그레이션 ${obligation.fully_overwritten?'전부':'일부'} 덮임 ${obligation.overwritten_pixel_count}px · 후보 ${obligation.candidate_write_ids.join(', ')}`:' · 확인된 후보 쓰기 영향 없음';
+  $('codeInfo').textContent=`${entry.code} · page ${entry.page}, row ${entry.row}, col ${entry.column} · 시작 ${entry.physical_x},${entry.physical_y} · 정적 ${entry.occurrence_count}회${overlays}${exact}${migration}`;
+  updateCodeNavigation(normalized);
+}
+function selectedCodeEntries(){ return logicalCodeMap.references.filter(codeSubsets[$('codeSubset').value]); }
+function updateCodeNavigation(code){
+  const entries=selectedCodeEntries(); const index=entries.findIndex(entry=>entry.code===code);
+  $('codeNavSummary').textContent=index>=0?`${index+1} / ${entries.length}`:`묶음 ${entries.length}개`;
+  $('previousCode').disabled=!entries.length; $('nextCode').disabled=!entries.length;
+}
+function stepCode(delta){
+  const entries=selectedCodeEntries(); if(!entries.length) return;
+  const current=$('codeLookup').value.trim().toLowerCase(); const index=entries.findIndex(entry=>entry.code===current);
+  const next=index<0?0:(index+delta+entries.length)%entries.length;
+  $('codeLookup').value=entries[next].code; showCode(entries[next].code);
+}
+function showCodesAt(point){
+  const matches=logicalCodeMap.references.filter(entry=>entry.footprint_fragments.some(f=>point.x>=f.x&&point.x<f.x+f.width&&point.y>=f.y&&point.y<f.y+f.height));
+  matches.sort((a,b)=>(b.occurrence_count-a.occurrence_count)||a.code.localeCompare(b.code));
+  const writes=(migrationReview?.candidate_writes||[]).filter(write=>point.x>=write.cell.x&&point.x<write.cell.x+write.cell.width&&point.y>=write.cell.y&&point.y<write.cell.y+write.cell.height);
+  const writeText=writes.length?` · 후보 쓰기 ${writes.map(write=>write.id).join(', ')}`:'';
+  $('codeInfo').textContent=`픽셀 ${point.x},${point.y}를 덮는 논리 코드 ${matches.length}개: ${matches.slice(0,24).map(entry=>`${entry.code}${entry.occurrence_count?`(${entry.occurrence_count})`:''}`).join(', ')}${matches.length>24?' …':''}${writeText}`;
+}
+$('codeLookup').addEventListener('input',event=>showCode(event.target.value));
+$('codeSubset').addEventListener('change',()=>stepCode(0));
+$('previousCode').addEventListener('click',()=>stepCode(-1));
+$('nextCode').addEventListener('click',()=>stepCode(1));
+$('clearCode').addEventListener('click',()=>{ codeLayer.replaceChildren(); $('codeInfo').textContent='논리 코드 표시를 지웠습니다.'; });
+$('zoom').addEventListener('change',event=>{ const zoom=Number(event.target.value); stage.style.width=`${1024*zoom}px`; stage.style.height=`${256*zoom}px`; });
+$('zoom').dispatchEvent(new Event('change'));
+
+$('saveLabel').addEventListener('click',()=>{
+  try{
+    const label=formLabel(); const index=documentState.labels.findIndex(item=>item.id===selectedId); if(index<0) throw new Error('선택 라벨이 없습니다.');
+    documentState.labels[index]=label; selectedId=label.id; autosave(); render(); setStatus(`${label.id}을 브라우저 임시본에 저장했습니다. JSON 내보내기로 파일을 남기세요.`);
+  }catch(error){ setStatus(error.message,true); }
+});
+$('deleteLabel').addEventListener('click',()=>{
+  if(!selectedId) return; const removed=selectedId; documentState.labels=documentState.labels.filter(label=>label.id!==selectedId); selectedId=null; fillForm(null); autosave(); render(); setStatus(`${removed}을 삭제했습니다.`);
+});
+$('export').addEventListener('click',()=>{
+  try{
+    const ids=new Set(); for(const label of documentState.labels){ if(ids.has(label.id)) throw new Error(`중복 ID: ${label.id}`); ids.add(label.id); const old=selectedId; selectedId=label.id; validateLabel(label); selectedId=old; }
+    const blob=new Blob([`${JSON.stringify(documentState,null,2)}\n`],{type:'application/json'}); const url=URL.createObjectURL(blob); const link=document.createElement('a'); link.href=url; link.download='menu-atlas-labels.json'; link.click(); URL.revokeObjectURL(url); setStatus('라벨 JSON을 내보냈습니다. 다음 패킷 생성 때 --labels로 다시 검증할 수 있습니다.');
+  }catch(error){ setStatus(error.message,true); }
+});
+$('loadFile').addEventListener('change',async event=>{
+  try{
+    const file=event.target.files[0]; if(!file) return; const loaded=JSON.parse(await file.text());
+    for(const key of ['kind','source_bin_sha256','menu_stored_sha256','menu_decoded_sha256','source_atlas_indexed_sha256','atlas_width','atlas_height']) if(loaded[key]!==initialDocument[key]) throw new Error(`원본 바인딩 불일치: ${key}`);
+    if(!Array.isArray(loaded.labels)) throw new Error('labels 배열이 없습니다.'); documentState=loaded; selectedId=null; fillForm(null); autosave(); render(); setStatus(`${file.name}을 불러왔습니다.`);
+  }catch(error){ setStatus(error.message,true); }
+});
+$('loadMigrationRisk').addEventListener('change',async event=>{
+  try{
+    const file=event.target.files[0]; if(!file) return;
+    applyMigrationReview(JSON.parse(await file.text()),file.name);
+    $('codeSubset').value='migration_affected'; stepCode(0);
+    setStatus(`${file.name}의 후보 쓰기와 영향 코드 검토 대기열을 불러왔습니다.`);
+  }catch(error){ setStatus(error.message,true); }
+});
+$('clearMigrationRisk').addEventListener('click',()=>{ clearMigrationReview(); setStatus('마이그레이션 위험 표시를 지웠습니다. 라벨 초안은 그대로입니다.'); });
+$('restoreDraft').addEventListener('click',()=>{
+  try{ const restored=JSON.parse(localStorage.getItem(storageKey)); if(!restored||restored.source_atlas_indexed_sha256!==initialDocument.source_atlas_indexed_sha256) throw new Error('임시본 원본 바인딩이 다릅니다.'); documentState=restored; selectedId=null; fillForm(null); render(); setStatus('브라우저 임시본을 복원했습니다.'); }catch(error){ setStatus(error.message,true); }
+});
+
+$('exactCodeCount').textContent=logicalCodeMap.exact_dialogue_pixel_match_count.toLocaleString();
+$('usedCodeCount').textContent=logicalCodeMap.used_code_count.toLocaleString();
+if(initialMigrationReview){
+  try{ applyMigrationReview(initialMigrationReview,'내장 migration-risk.json'); }
+  catch(error){ clearMigrationReview(); setStatus(error.message,true); }
+}else clearMigrationReview();
+refreshSubsetCounts(); fillForm(null); render(); stepCode(0); checkDraft();
+if(!status.textContent) setStatus('자유 크기 라벨링 준비 완료. 변경 내용은 브라우저에 임시 저장되며 JSON 내보내기로 보존합니다.');
+</script>
+</body>
+</html>

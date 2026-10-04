@@ -1,0 +1,52 @@
+use serde::Serialize;
+
+#[derive(Debug, Serialize)]
+pub struct DialogueFixedCodeConsumerAuditReport {
+    pub primary_script_inventory_complete: bool,
+    pub primary_translation_population_complete: bool,
+    pub primary_referenced_coordinate_count: usize,
+    pub primary_referenced_coordinate_rewrite_count: usize,
+    pub selector_translation_population_complete: bool,
+    pub selector_stored_coordinate_count: usize,
+    pub selector_authored_coordinate_rewrite_count: usize,
+    pub runtime_insertion_coordinate_rewrite_count: usize,
+    pub preserved_primary_untranslated_coordinate_count: usize,
+    pub preserved_primary_unreferenced_coordinate_count: usize,
+    pub preserved_selector_coordinate_count: usize,
+    pub protected_source_glyph_code_count: usize,
+    pub protected_source_glyph_overwrite_count: usize,
+    pub preserved_source_glyph_protection_complete: bool,
+    pub source_coordinate_count: usize,
+    pub source_coordinate_partition_complete: bool,
+    pub name_glyph_layout_complete: bool,
+    pub name_glyph_active_code_count: usize,
+    pub name_glyph_cache_code_count: usize,
+    pub name_glyph_pack_code_count: usize,
+    pub player_name_control_coordinate_count: usize,
+    pub school_name_control_coordinate_count: usize,
+    pub decimal_control_coordinate_count: usize,
+    pub runtime_sources_resolved: bool,
+    pub unresolved_runtime_sources: Vec<String>,
+    pub runtime_decimal_codes_preserve_source_glyphs: bool,
+    pub fixed_code_consumer_ownership_complete: bool,
+    pub assets: Vec<DialogueFixedCodeConsumerAssetAudit>,
+}
+
+#[derive(Debug, Serialize, serde::Deserialize)]
+pub struct DialogueFixedCodeConsumerAssetAudit {
+    pub source_path: String,
+    pub stored_coordinate_count: usize,
+    pub primary_referenced_coordinate_count: usize,
+    pub primary_referenced_coordinate_rewrite_count: usize,
+    pub authored_coordinate_rewrite_count: usize,
+    pub selector_authored_coordinate_rewrite_count: usize,
+    pub runtime_insertion_coordinate_rewrite_count: usize,
+    pub preserved_primary_untranslated_coordinate_count: usize,
+    pub preserved_primary_unreferenced_coordinate_count: usize,
+    pub preserved_selector_coordinate_count: usize,
+    pub protected_source_glyph_code_count: usize,
+    pub protected_source_glyph_overwrite_count: usize,
+    pub preserved_source_glyph_protection_complete: bool,
+    pub decimal_control_coordinate_count: usize,
+    pub runtime_decimal_codes_preserve_source_glyphs: bool,
+}
