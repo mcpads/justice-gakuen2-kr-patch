@@ -2,9 +2,9 @@
 
 PlayStation 일본어판 **사립 저스티스 학원 열혈청춘일기 2**의 비공식 한국어 패치입니다.
 
-현재 버전은 **v0.1.0**입니다.
+현재 버전은 **v1.0.0**입니다. 기존 v0.1.0과 패치 내용은 같습니다.
 
-**[패치 다운로드](https://github.com/mcpads/justice-gakuen2-kr-patch/releases/tag/v0.1.0)** · **[문제 제보](https://github.com/mcpads/justice-gakuen2-kr-patch/issues)**
+**[패치 다운로드](https://github.com/mcpads/justice-gakuen2-kr-patch/releases/tag/v1.0.0)** · **[문제 제보](https://github.com/mcpads/justice-gakuen2-kr-patch/issues)**
 
 ## 공개 내용
 
@@ -29,12 +29,12 @@ PlayStation 일본어판 **사립 저스티스 학원 열혈청춘일기 2**의 
 ## 패치 적용
 
 1. 원본 BIN/CUE와 메모리 카드 파일을 별도로 보관합니다.
-2. 릴리스에서 `justice-gakuen2-kr-v0.1.0.xdelta`을 받습니다.
+2. 릴리스에서 `justice-gakuen2-kr-v1.0.0.xdelta`을 받습니다.
 3. [xdelta3](https://github.com/jmacd/xdelta/releases)를 준비하고 원본 BIN의 SHA-256을 위 표와 비교합니다. 배포 패치는 xdelta3 3.2.0으로 생성·재적용 검증했습니다.
 4. 아래 명령으로 새 BIN을 만듭니다. `original.bin`은 본인의 원본 BIN 파일명으로 바꾸세요. 경로에 공백이 있으면 큰따옴표로 감쌉니다.
 
 ```sh
-xdelta3 -d -s "original.bin" "justice-gakuen2-kr-v0.1.0.xdelta" "justice-gakuen2-kr.bin"
+xdelta3 -d -s "original.bin" "justice-gakuen2-kr-v1.0.0.xdelta" "justice-gakuen2-kr.bin"
 ```
 
 5. 결과 BIN의 SHA-256이 아래 값과 일치하는지 확인합니다.
@@ -67,7 +67,7 @@ shasum -a 256 "original.bin"
 sha256sum "original.bin"
 ```
 
-## 0.1.0 주요 변경 사항
+## 이전 0.1.0 주요 변경 사항
 
 - 영문·숫자·기호가 포함된 이름과 별명이 실기시험 준비 및 대전 화면에서 잘못 표시되던 문제를 수정했습니다.
 - 시험 결과 화면의 제목과 안내 문구 뒤에 사각형 배경이 드러나던 문제를 수정했습니다.
